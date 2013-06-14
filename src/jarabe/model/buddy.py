@@ -43,6 +43,7 @@ class BaseBuddyModel(GObject.GObject):
         self._color = None
         self._tags = None
         self._current_activity = None
+        self._social_ids = None
 
         GObject.GObject.__init__(self, **kwargs)
 
@@ -86,6 +87,15 @@ class BaseBuddyModel(GObject.GObject):
     current_activity = GObject.property(type=object,
                                         getter=get_current_activity,
                                         setter=set_current_activity)
+
+    def get_social_ids(self):
+        return self.social_ids
+
+    def set_social_ids(self, social_ids):
+        self.social_ids = social_ids
+
+    social_ids = GObject.property(type=object, getter=get_social_ids,
+                                 setter=set_social_ids)
 
     def is_owner(self):
         raise NotImplementedError

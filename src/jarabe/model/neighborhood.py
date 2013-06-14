@@ -905,7 +905,7 @@ class Neighborhood(GObject.GObject):
         if params_needing_reconnect:
             account.Reconnect()
 
-    def __buddy_added_cb(self, account, contact_id, nick, handle):
+    def __buddy_added_cb(self, account, contact_id, nick, handle, social_ids):
         logging.debug('__buddy_added_cb %r', contact_id)
 
         if contact_id in self._buddies:
@@ -916,7 +916,8 @@ class Neighborhood(GObject.GObject):
             nick=nick,
             account=account.object_path,
             contact_id=contact_id,
-            handle=handle)
+            handle=handle,
+            social_ids=social_ids)
         self._buddies[contact_id] = buddy
 
     def __buddy_updated_cb(self, account, contact_id, properties):

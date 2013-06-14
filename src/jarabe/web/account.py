@@ -38,6 +38,15 @@ class Account():
         '''
         raise NotImplementedError
 
+    def get_id(self):
+        ''' get_id returns a string which identifies the user uniquely
+        on the online service
+
+        :returns: unique id
+        :rtype: string
+        '''
+        raise NotImplementedError
+
     def get_token_state(self):
         ''' get_token_state returns an enum to describe the state of
         the online service:

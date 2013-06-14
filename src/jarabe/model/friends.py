@@ -35,11 +35,13 @@ class FriendBuddyModel(BuddyModel):
 
     _NOT_PRESENT_COLOR = '#D5D5D5,#FFFFFF'
 
-    def __init__(self, nick, key, account=None, contact_id=None):
+    def __init__(self, nick, key, account=None, contact_id=None,
+                 social_ids=None):
         self._online_buddy = None
 
         BuddyModel.__init__(self, nick=nick, key=key, account=account,
-                            contact_id=contact_id)
+                            contact_id=contact_id,
+                            social_ids=social_ids)
 
         neighborhood_model = neighborhood.get_model()
         neighborhood_model.connect('buddy-added', self.__buddy_added_cb)
@@ -126,7 +128,8 @@ class Friends(GObject.GObject):
         if not self.has_buddy(buddy):
             buddy = FriendBuddyModel(key=buddy.key, nick=buddy.nick,
                                      account=buddy.account,
-                                     contact_id=buddy.contact_id)
+                                     contact_id=buddy.contact_id,
+                                     social_ids=buddy.social_ids)
             self.add_friend(buddy)
             self.save()
 
