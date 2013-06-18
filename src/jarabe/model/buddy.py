@@ -95,7 +95,7 @@ class BaseBuddyModel(GObject.GObject):
         self.social_ids = social_ids
 
     social_ids = GObject.property(type=object, getter=get_social_ids,
-                                 setter=set_social_ids)
+                                  setter=set_social_ids)
 
     def is_owner(self):
         raise NotImplementedError
@@ -114,8 +114,13 @@ class OwnerBuddyModel(BaseBuddyModel):
 
         self.props.key = get_profile().pubkey
 
+        social_ids = client.all_entries('/desktop/sugar/user/social')
+        self.props.social_ids = {social_id.key:social_id.value.get_string() for
+                                 social_id in social_ids}
+
         self.connect('notify::nick', self.__property_changed_cb)
         self.connect('notify::color', self.__property_changed_cb)
+        self.connect('notify::social_ids', self.__property_changed_cb)
 
         bus = dbus.SessionBus()
         bus.add_signal_receiver(
@@ -154,6 +159,8 @@ class OwnerBuddyModel(BaseBuddyModel):
                 properties['key'] = dbus.ByteArray(self.props.key)
             if self.props.color is not None:
                 properties['color'] = self.props.color.to_string()
+            if self.props.social_ids is not None:
+                properties['social_ids'] = self.props.social_ids
 
             logging.debug('calling SetProperties with %r', properties)
             connection[CONNECTION_INTERFACE_BUDDY_INFO].SetProperties(
