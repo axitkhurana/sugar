@@ -168,7 +168,7 @@ class _Account(GObject.GObject):
         'activity-removed': (GObject.SignalFlags.RUN_FIRST, None,
                              ([object])),
         'buddy-added': (GObject.SignalFlags.RUN_FIRST, None,
-                        ([object, object, object])),
+                        ([object, object, object, object])),
         'buddy-updated': (GObject.SignalFlags.RUN_FIRST, None,
                           ([object, object])),
         'buddy-removed': (GObject.SignalFlags.RUN_FIRST, None,
@@ -652,7 +652,8 @@ class _Account(GObject.GObject):
                                               'BuddyInfo.GetCurrentActivity'),
                         timeout=_QUERY_DBUS_TIMEOUT)
 
-                self.emit('buddy-added', contact_id, nick, handle)
+                    self.emit('buddy-added', contact_id, nick, handle,
+                            {1: 2, 3: 4})
 
     def __got_activities_cb(self, buddy_handle, activities):
         logging.debug('_Account.__got_activities_cb %r %r', buddy_handle,
@@ -941,6 +942,8 @@ class Neighborhood(GObject.GObject):
 
         if 'key' in properties:
             buddy.props.key = properties['key']
+        
+        buddy.props.social_ids = {'n':2, 3:4}
 
         nick_key = CONNECTION_INTERFACE_ALIASING + '/alias'
         if nick_key in properties:

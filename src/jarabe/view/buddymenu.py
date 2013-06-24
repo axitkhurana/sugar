@@ -49,11 +49,14 @@ class BuddyMenu(Palette):
         self.set_content(self.menu_box)
         self.menu_box.show_all()
         self._invite_menu = None
+        self._social_menu = None
         self._active_activity_changed_hid = None
         # Fixme: we need to make the widget accessible through the Palette API
         self._widget.connect('destroy', self.__destroy_cb)
 
         self._buddy.connect('notify::nick', self.__buddy_notify_nick_cb)
+        self._buddy.connect('notify::social_ids',
+                            self.__buddy_notify_social_ids_cb)
 
         if buddy.is_owner():
             self._add_my_items()
@@ -75,8 +78,11 @@ class BuddyMenu(Palette):
             menu_item = PaletteMenuItem(_('Make friend'), 'list-add')
             menu_item.connect('activate', self._make_friend_cb)
 
-        self.menu_box.pack_start(menu_item, True, True, 0)
+        self._social_menu = PaletteMenuItem(_(str(self._buddy.get_social_ids())))
 
+        self.menu_box.pack_start(menu_item, True, True, 0)
+        self.menu_box.pack_start(self._social_menu, True, True, 0)
+        logging.debug('social menu packed')
         self._invite_menu = PaletteMenuItem('')
         self._invite_menu.connect('activate', self._invite_friend_cb)
         self.menu_box.pack_start(self._invite_menu, True, True, 0)
@@ -106,6 +112,8 @@ class BuddyMenu(Palette):
             self.menu_box.pack_start(item, True, True, 0)
             item.show()
 
+        self._social_menu = PaletteMenuItem(_(str(self._buddy.get_social_ids())))
+        self.menu_box.pack_start(self._social_menu, True, True, 0)
         item = PaletteMenuItem(_('My Settings'), 'preferences-system')
         item.connect('activate', self.__controlpanel_activate_cb)
         self.menu_box.pack_start(item, True, True, 0)
@@ -161,6 +169,13 @@ class BuddyMenu(Palette):
 
     def __buddy_notify_nick_cb(self, buddy, pspec):
         self.set_primary_text(GLib.markup_escape_text(buddy.props.nick))
+
+    def __buddy_notify_social_ids_cb(self, buddy, pspec):
+        if buddy.get_social_ids() is None:
+            self._social_menu.hide()
+        else:
+            self._social_menu = PaletteMenuItem(_(str(buddy.get_social_ids())))
+            self._social_menu.show()
 
     def _make_friend_cb(self, menuitem):
         friends.get_model().make_friend(self._buddy)

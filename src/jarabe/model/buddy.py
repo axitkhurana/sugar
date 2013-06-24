@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
+import traceback
 import logging
+import json
 
 from gi.repository import GObject
 from gi.repository import GConf
@@ -51,6 +52,8 @@ class BaseBuddyModel(GObject.GObject):
         return self._nick
 
     def set_nick(self, nick):
+        logging.debug('calling set_nick %s ', nick)
+        # logging.debug('%s ', repr(traceback.format_stack()))
         self._nick = nick
 
     nick = GObject.property(type=object, getter=get_nick, setter=set_nick)
@@ -64,6 +67,7 @@ class BaseBuddyModel(GObject.GObject):
     key = GObject.property(type=object, getter=get_key, setter=set_key)
 
     def get_color(self):
+        logging.debug('calling get_color %s ', self.get_nick())
         return self._color
 
     def set_color(self, color):
@@ -89,10 +93,14 @@ class BaseBuddyModel(GObject.GObject):
                                         setter=set_current_activity)
 
     def get_social_ids(self):
-        return self.social_ids
+        return self._social_ids
 
     def set_social_ids(self, social_ids):
-        self.social_ids = social_ids
+        logging.debug('calling set_social_ids with %s type: %s for nick %s',
+                social_ids,type(social_ids), self._nick)
+
+        # logging.debug('%s ', repr(traceback.format_stack()))
+        self._social_ids = social_ids
 
     social_ids = GObject.property(type=object, getter=get_social_ids,
                                   setter=set_social_ids)
@@ -160,7 +168,7 @@ class OwnerBuddyModel(BaseBuddyModel):
             if self.props.color is not None:
                 properties['color'] = self.props.color.to_string()
             if self.props.social_ids is not None:
-                properties['social_ids'] = self.props.social_ids
+                properties['social_ids'] = json.dumps(self.props.social_ids)
 
             logging.debug('calling SetProperties with %r', properties)
             connection[CONNECTION_INTERFACE_BUDDY_INFO].SetProperties(
