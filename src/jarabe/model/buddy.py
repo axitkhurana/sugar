@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import logging
+import json
 
 from gi.repository import GObject
 from gi.repository import GConf
@@ -27,6 +28,7 @@ from sugar3.graphics.xocolor import XoColor
 from sugar3.profile import get_profile
 
 from jarabe.util.telepathy import connection_watcher
+from jarabe.webservice.accountsmanager import get_all_accounts
 
 
 CONNECTION_INTERFACE_BUDDY_INFO = 'org.laptop.Telepathy.BuddyInfo'
@@ -43,6 +45,7 @@ class BaseBuddyModel(GObject.GObject):
         self._color = None
         self._tags = None
         self._current_activity = None
+        self._social_ids = None
 
         GObject.GObject.__init__(self, **kwargs)
 
@@ -87,6 +90,15 @@ class BaseBuddyModel(GObject.GObject):
                                         getter=get_current_activity,
                                         setter=set_current_activity)
 
+    def get_social_ids(self):
+        return self._social_ids
+
+    def set_social_ids(self, social_ids):
+        self._social_ids = social_ids
+
+    social_ids = GObject.property(type=object, getter=get_social_ids,
+                                  setter=set_social_ids)
+
     def is_owner(self):
         raise NotImplementedError
 
@@ -104,8 +116,12 @@ class OwnerBuddyModel(BaseBuddyModel):
 
         self.props.key = get_profile().pubkey
 
+        self.props.social_ids = {a.get_description():a.get_public_id() for a in
+                                 get_all_accounts()}
+
         self.connect('notify::nick', self.__property_changed_cb)
         self.connect('notify::color', self.__property_changed_cb)
+        self.connect('notify::social_ids', self.__property_changed_cb)
 
         bus = dbus.SessionBus()
         bus.add_signal_receiver(
@@ -144,6 +160,8 @@ class OwnerBuddyModel(BaseBuddyModel):
                 properties['key'] = dbus.ByteArray(self.props.key)
             if self.props.color is not None:
                 properties['color'] = self.props.color.to_string()
+            if self.props.social_ids is not None:
+                properties['social_ids'] = json.dumps(self.props.social_ids)
 
             logging.debug('calling SetProperties with %r', properties)
             connection[CONNECTION_INTERFACE_BUDDY_INFO].SetProperties(

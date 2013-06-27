@@ -15,6 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import logging
+import json
 from functools import partial
 from hashlib import sha1
 
@@ -940,6 +941,9 @@ class Neighborhood(GObject.GObject):
 
         if 'key' in properties:
             buddy.props.key = properties['key']
+
+        if 'social_ids' in properties:
+            buddy.props.social_ids = json.loads(properties['social_ids'])
 
         nick_key = CONNECTION_INTERFACE_ALIASING + '/alias'
         if nick_key in properties:
