@@ -62,6 +62,15 @@ class Account():
         '''
         return NotImplemented
 
+    def get_public_id(self):
+        ''' get_public_id returns a string which identifies the user uniquely
+        on the online service
+
+        :returns: unique public id
+        :rtype: string
+        '''
+        raise NotImplementedError
+
 
 class SharedJournalEntry():
     ''' SharedJournalEntry is a class used to intermediate between the
