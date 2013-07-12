@@ -71,6 +71,14 @@ class Account():
         '''
         raise NotImplementedError
 
+    def get_latest_post(self):
+        ''' get_latest_post returns a class that has the latest post on the
+        online service
+
+        :returns: WebServicePost()
+        :rtype: WebServicePost
+        '''
+        raise NotImplementedError
 
 class SharedJournalEntry():
     ''' SharedJournalEntry is a class used to intermediate between the
@@ -117,4 +125,33 @@ class SharedJournalEntry():
         :param: journal_entry_metadata
         :type: dict
         '''
+        raise NotImplementedError
+
+class WebServicePost():
+    ''' WebServicePost is a class used as a general representation of a
+    post from any external web service. It provides stubs for public methods
+    for accessing post data that are used by the social sugar widget.
+
+    It holds the latest public post on the service. The post-changed signal is
+    emitted by the online service if newer post has been posted on the service.
+    '''
+
+    __gsignals__ = {
+        'post-changed': (GObject.SignalFlags.RUN_FIRST, None, ([]))
+    }
+
+    def get_title(self):
+        ''' get_title returns the title of the post '''
+        raise NotImplementedError
+
+    def get_message(self):
+        ''' get_message returns the message of the post '''
+        raise NotImplementedError
+
+    def get_picture(self):
+        ''' get_picture returns the picture attached to the post '''
+        raise NotImplementedError
+
+    def get_link(self):
+        ''' get_link returns any link in the post '''
         raise NotImplementedError
