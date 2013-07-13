@@ -14,15 +14,37 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+import logging
+
 from sugar3.graphics import style
 from sugar3.graphics.icon import CanvasIcon
 
 from jarabe.view.buddymenu import BuddyMenu
 from jarabe.util.normalize import normalize_string
 
+from jarabe.webservice.account import WebServicePost
+
 
 _FILTERED_ALPHA = 0.33
 
+class MockWebServicePost(WebServicePost):
+    def get_title(self):
+        ''' get_title returns the title of the post '''
+        return "Title"
+
+    def get_message(self):
+        ''' get_message returns the message of the post '''
+        return "This is a long message"
+
+    def get_picture(self):
+        ''' get_picture returns the picture attached to the post '''
+        return "This is not a picture"
+
+    def get_link(self):
+        ''' get_link returns any link in the post '''
+        return "http://sugarlabs.org"
+
+post = MockWebServicePost()
 
 class SocialIcon(CanvasIcon):
     def __init__(self, buddy, pixel_size=style.STANDARD_ICON_SIZE):
@@ -47,7 +69,7 @@ class SocialIcon(CanvasIcon):
         self._update_color()
 
     def __button_release_event_cb(self, icon, event):
-        pass
+        logging.debug('SugarWebService %s' % post.get_title())
 
     def _update_color(self):
         # keep the icon in the palette in sync with the view
