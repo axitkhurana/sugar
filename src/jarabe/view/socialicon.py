@@ -15,9 +15,10 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import logging
+from gi.repository import Gtk
 
 from sugar3.graphics import style
-from sugar3.graphics.icon import CanvasIcon
+from sugar3.graphics.icon import CanvasIcon, EventIcon
 
 from jarabe.view.buddymenu import BuddyMenu
 from jarabe.util.normalize import normalize_string
@@ -47,9 +48,11 @@ class MockWebServicePost(WebServicePost):
 post = MockWebServicePost()
 
 class SocialIcon(CanvasIcon):
-    def __init__(self, buddy, pixel_size=style.STANDARD_ICON_SIZE):
+    def __init__(self, buddy, social_bubble, pixel_size=style.STANDARD_ICON_SIZE):
         CanvasIcon.__init__(self, icon_name='social-bubble',
                             pixel_size=pixel_size)
+
+        self._social_bubble = social_bubble
 
         self._filtered = False
         self._buddy = buddy
@@ -69,7 +72,57 @@ class SocialIcon(CanvasIcon):
         self._update_color()
 
     def __button_release_event_cb(self, icon, event):
+        self._social_bubble.show_all()
+        self.hide()
         logging.debug('SugarWebService %s' % post.get_title())
+
+    def _update_color(self):
+        # keep the icon in the palette in sync with the view
+        palette = self.get_palette()
+        self.props.xo_color = self._buddy.get_color()
+        if self._filtered:
+            self.alpha = _FILTERED_ALPHA
+            if palette is not None:
+                palette.props.icon.props.stroke_color = self.props.stroke_color
+                palette.props.icon.props.fill_color = self.props.fill_color
+        else:
+            self.alpha = 1.0
+            if palette is not None:
+                palette.props.icon.props.xo_color = self._buddy.get_color()
+
+    def set_filter(self, query):
+        normalized_name = normalize_string(
+            self._buddy.get_nick().decode('utf-8'))
+        self._filtered = (normalized_name.find(query) == -1) \
+            and not self._buddy.is_owner()
+        self._update_color()
+
+class SocialBubble(EventIcon):
+    def __init__(self, buddy, pixel_size=style.SOCIAL_ICON_SIZE):
+        EventIcon.__init__(self, icon_name='social-bubble',
+                           pixel_size=pixel_size)
+        # self.connect('enter-notify-event', self.__enter_notify_event_cb)
+        # self.connect('leave-notify-event', self.__leave_notify_event_cb)
+        self.set_visible_window(True)
+        self.set_above_child(False)
+
+        self._filtered = False
+        self._buddy = buddy
+        label = Gtk.Label('Sample Text')
+        self.add(label)
+
+        self._buddy.connect('notify::present', self.__buddy_notify_present_cb)
+        self._buddy.connect('notify::color', self.__buddy_notify_color_cb)
+
+
+        self._update_color()
+
+    def __buddy_notify_present_cb(self, buddy, pspec):
+        # Update the icon's color when the buddy comes and goes
+        self._update_color()
+
+    def __buddy_notify_color_cb(self, buddy, pspec):
+        self._update_color()
 
     def _update_color(self):
         # keep the icon in the palette in sync with the view
