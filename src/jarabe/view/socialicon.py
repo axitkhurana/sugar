@@ -53,6 +53,10 @@ class SocialIcon(CanvasIcon):
                             pixel_size=pixel_size)
 
         self._social_bubble = social_bubble
+        self._social_container = Gtk.Fixed()
+        self._social_container.put(Gtk.Label("Text"), 20, 20)
+        self._social_container.put(self._social_bubble, 20, 20)
+
 
         self._filtered = False
         self._buddy = buddy
@@ -72,7 +76,7 @@ class SocialIcon(CanvasIcon):
         self._update_color()
 
     def __button_release_event_cb(self, icon, event):
-        self._social_bubble.show_all()
+        self._social_container.show_all()
         self.hide()
         logging.debug('SugarWebService %s' % post.get_title())
 
@@ -108,8 +112,6 @@ class SocialBubble(EventIcon):
 
         self._filtered = False
         self._buddy = buddy
-        label = Gtk.Label('Sample Text')
-        self.add(label)
 
         self._buddy.connect('notify::present', self.__buddy_notify_present_cb)
         self._buddy.connect('notify::color', self.__buddy_notify_color_cb)
