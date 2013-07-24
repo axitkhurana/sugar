@@ -21,6 +21,7 @@ from sugar3.graphics import style
 from sugar3.graphics.icon import CanvasIcon
 
 from jarabe.view.buddyicon import BuddyIcon
+from jarabe.view.socialicon import SocialIcon, SocialBubble
 from jarabe.model import bundleregistry
 
 
@@ -34,8 +35,24 @@ class FriendView(Gtk.VBox):
 
         self._buddy = buddy
         self._buddy_icon = BuddyIcon(buddy)
+        self._social_bubble = SocialBubble(buddy)
+
+        self._social_container = Gtk.Overlay()
+        self._label = Gtk.Label('Label')
+
+        self._social_container.add(self._social_bubble)
+        self._social_container.add_overlay(self._label)
+
+        self._social_icon = SocialIcon(buddy,
+                                       self._social_container)
+
         self._buddy_icon.props.pixel_size = size
+
+        self.add(self._social_container)
+        self.add(self._social_icon)
         self.add(self._buddy_icon)
+
+        self._social_icon.show()
         self._buddy_icon.show()
 
         self._activity_icon = CanvasIcon(pixel_size=size)
