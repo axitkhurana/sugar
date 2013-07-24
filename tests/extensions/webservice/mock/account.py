@@ -70,5 +70,26 @@ class RefreshMenu(MenuItem):
         return
 
 
+class MockWebServicePost(account.WebServicePost):
+    def get_title(self):
+        ''' get_title returns the title of the post '''
+        return "Title"
+
+    def get_message(self):
+        ''' get_message returns the message of the post '''
+        return "This is a long message"
+
+    def get_picture(self):
+        ''' get_picture returns the picture attached to the post '''
+        return "This is not a picture"
+
+    def get_link(self):
+        ''' get_link returns any link in the post '''
+        return "http://sugarlabs.org"
+
+
 def get_account():
     return MockAccount()
+
+def get_post():
+    return MockWebServicePost()
