@@ -18,7 +18,7 @@ import logging
 from gi.repository import Gtk
 
 from sugar3.graphics import style
-from sugar3.graphics.icon import CanvasIcon, EventIcon
+from sugar3.graphics.icon import Icon, CanvasIcon, EventIcon
 
 from jarabe.view.buddymenu import BuddyMenu
 from jarabe.util.normalize import normalize_string
@@ -78,13 +78,10 @@ class SocialIcon(CanvasIcon):
 
 class SocialBubble(EventIcon):
     def __init__(self, buddy, pixel_size=style.SOCIAL_ICON_SIZE):
-        EventIcon.__init__(self, icon_name='social-bubble',
+        EventIcon.__init__(self, icon_name='social-bubble-large',
                            pixel_size=pixel_size)
         # self.connect('enter-notify-event', self.__enter_notify_event_cb)
         # self.connect('leave-notify-event', self.__leave_notify_event_cb)
-        self.set_visible_window(True)
-        self.set_above_child(False)
-
         self._filtered = False
         self._buddy = buddy
 
@@ -120,3 +117,21 @@ class SocialBubble(EventIcon):
         self._filtered = (normalized_name.find(query) == -1) \
             and not self._buddy.is_owner()
         self._update_color()
+
+
+class SocialBubbleContent(Gtk.VBox):
+    def __init__(self, text, icon_name):
+        Gtk.VBox.__init__(self)
+        self.set_homogeneous(False)
+        label = Gtk.Label(text)
+        label.set_line_wrap(True)
+        label.set_justify(Gtk.Justification.FILL)
+
+        self._text = Gtk.HBox()
+        self._text.pack_start(label, False, False, 30)
+        self._icon = Icon(pixel_size=style.SOCIAL_POST_ICON_SIZE,
+                          icon_name=icon_name,
+                          stroke_color=style.COLOR_BUTTON_GREY.get_svg(),
+                          fill_color=style.COLOR_TRANSPARENT.get_svg())
+        self.pack_start(self._icon, False, True, 60)
+        self.pack_end(self._text, False, True, 80)

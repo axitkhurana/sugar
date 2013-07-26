@@ -21,7 +21,8 @@ from sugar3.graphics import style
 from sugar3.graphics.icon import CanvasIcon
 
 from jarabe.view.buddyicon import BuddyIcon
-from jarabe.view.socialicon import SocialIcon, SocialBubble
+from jarabe.view.socialicon import (SocialIcon, SocialBubble,
+                                    SocialBubbleContent)
 from jarabe.model import bundleregistry
 
 
@@ -38,10 +39,16 @@ class FriendView(Gtk.VBox):
         self._social_bubble = SocialBubble(buddy)
 
         self._social_container = Gtk.Overlay()
-        self._label = Gtk.Label('Label')
+
+        content = ('Sugar on a Stick (SoaS) Strawberry release is based on'
+        'Fedora 11 and will boot, run in memory, and maintain changes on'
+        'a 1GB USB flash drive')
+        self._content = SocialBubbleContent(text=content,
+                                            icon_name='system-search')
 
         self._social_container.add(self._social_bubble)
-        self._social_container.add_overlay(self._label)
+        self._social_container.add_overlay(self._content)
+        # self._social_container.size_request(style.SOCIAL_ICON_SIZE)
 
         self._social_icon = SocialIcon(buddy,
                                        self._social_container)
