@@ -71,10 +71,12 @@ class Account():
         '''
         raise NotImplementedError
 
-    def get_latest_post(self):
+    def get_latest_post(self, public_id):
         ''' get_latest_post returns a class that has the latest post on the
-        online service
+        online service of the user identified by given public id
 
+        :param: user_public_id
+        :type: string
         :returns: WebServicePost()
         :rtype: WebServicePost
         '''
