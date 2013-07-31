@@ -24,7 +24,7 @@ from jarabe.view.buddyicon import BuddyIcon
 from jarabe.view.socialicon import (SocialIcon, SocialBubble,
                                     SocialBubbleContent)
 from jarabe.model import bundleregistry
-
+from jarabe.webservice.accountsmanager import get_all_accounts
 
 class FriendView(Gtk.VBox):
     def __init__(self, buddy, **kwargs):
@@ -40,11 +40,25 @@ class FriendView(Gtk.VBox):
 
         self._social_container = Gtk.Overlay()
 
-        content = ('Sugar on a Stick (SoaS) Strawberry release is based on'
-        'Fedora 11 and will boot, run in memory, and maintain changes on'
-        'a 1GB USB flash drive')
+        self._accounts = get_all_accounts()
+
+        # TODO Add multiple account support for social sugar
+        # Currently only mock-service account supported
+
+        if 'mock-service' in self._accounts:
+            social_ids = self_buddy.get_social_ids()
+            friend_public_id = social_ids.get('mock-service', None)
+            mock_account = self._accounts['mock-service']
+            post = mock_account.get_latest_post(mock_account_id)
+            post.get_latest_post(friend_public_id)
+            content = post.get_message()
+            icon = post.get_picture()
+        else:
+            content = ('Webservices have not been configured')
+            icon = 'system-search'
+
         self._content = SocialBubbleContent(text=content,
-                                            icon_name='system-search')
+                                            icon_name=icon)
 
         self._social_container.add(self._social_bubble)
         self._social_container.add_overlay(self._content)
