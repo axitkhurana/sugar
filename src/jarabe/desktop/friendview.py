@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+import logging
 from gi.repository import Gtk
 
 from sugar3.graphics import style
@@ -24,7 +25,7 @@ from jarabe.view.buddyicon import BuddyIcon
 from jarabe.view.socialicon import (SocialIcon, SocialBubble,
                                     SocialBubbleContent)
 from jarabe.model import bundleregistry
-from jarabe.webservice.accountsmanager import get_all_accounts
+from jarabe.webservice.accountsmanager import get_all_accounts, _get_webservice_module_paths
 
 class FriendView(Gtk.VBox):
     def __init__(self, buddy, **kwargs):
@@ -41,12 +42,14 @@ class FriendView(Gtk.VBox):
         self._social_container = Gtk.Overlay()
 
         self._accounts = get_all_accounts()
-
+        logging.debug('SOCIAL_IDS accounts %s' % self._accounts)
+        logging.debug('SOCIAL_IDS paths %s' % _get_webservice_module_paths())
         # TODO Add multiple account support for social sugar
         # Currently only mock-service account supported
 
         if 'mock-service' in self._accounts:
             social_ids = self_buddy.get_social_ids()
+            logging.debug('SOCIAL_IDS %s' % social_ids)
             friend_public_id = social_ids.get('mock-service', None)
             mock_account = self._accounts['mock-service']
             post = mock_account.get_latest_post(mock_account_id)
