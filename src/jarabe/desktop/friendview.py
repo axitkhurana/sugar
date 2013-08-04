@@ -25,7 +25,7 @@ from jarabe.view.buddyicon import BuddyIcon
 from jarabe.view.socialicon import (SocialIcon, SocialBubble,
                                     SocialBubbleContent)
 from jarabe.model import bundleregistry
-from jarabe.webservice.accountsmanager import get_all_accounts, _get_webservice_module_paths
+from jarabe.webservice.accountsmanager import get_all_accounts, get_account, _get_webservice_module_paths
 
 class FriendView(Gtk.VBox):
     def __init__(self, buddy, **kwargs):
@@ -47,18 +47,22 @@ class FriendView(Gtk.VBox):
         # TODO Add multiple account support for social sugar
         # Currently only mock-service account supported
 
-        if 'mock-service' in self._accounts:
-            social_ids = self_buddy.get_social_ids()
-            logging.debug('SOCIAL_IDS %s' % social_ids)
-            friend_public_id = social_ids.get('mock-service', None)
-            mock_account = self._accounts['mock-service']
-            post = mock_account.get_latest_post(mock_account_id)
-            post.get_latest_post(friend_public_id)
-            content = post.get_message()
-            icon = post.get_picture()
-        else:
-            content = ('Webservices have not been configured')
-            icon = 'system-search'
+        if self._accounts:
+            if get_account('mock-service'):
+                social_ids = self._buddy.get_social_ids()
+                if social_ids:
+                    friend_public_id = social_ids.get('mock-service', None)
+                    mock_account = self._accounts['mock-service']
+                    post = mock_account.get_latest_post(mock_account_id)
+                    post.get_latest_post(friend_public_id)
+                    content = post.get_message()
+                    icon = post.get_picture()
+                else:
+                    logging.debug('No social id %s %s %s' % (self._buddy.get_nick(),
+                                  self._buddy.get_social_ids(),
+                                  self._buddy.get_color()))
+                    content = 'Webservices have not been configured'
+                    icon = 'system-search'
 
         self._content = SocialBubbleContent(text=content,
                                             icon_name=icon)
