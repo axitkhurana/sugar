@@ -945,6 +945,8 @@ class Neighborhood(GObject.GObject):
         if 'social_ids' in properties:
             buddy.props.social_ids = json.loads(properties['social_ids'])
 
+        logging.debug('Properties NBD %s' % properties)
+
         nick_key = CONNECTION_INTERFACE_ALIASING + '/alias'
         if nick_key in properties:
             buddy.props.nick = properties[nick_key]
