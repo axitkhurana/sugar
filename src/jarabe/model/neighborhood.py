@@ -951,7 +951,11 @@ class Neighborhood(GObject.GObject):
         if nick_key in properties:
             buddy.props.nick = properties[nick_key]
 
+        if str(buddy.props.nick) == 'Sushant Khuran':
+            logging.debug("social_id! please! %s" % buddy.get_social_ids())
+
         if is_new:
+            logging.debug('Is NEW!')
             self.emit('buddy-added', buddy)
 
     def __buddy_removed_cb(self, account, contact_id):

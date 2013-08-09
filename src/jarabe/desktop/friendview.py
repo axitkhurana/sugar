@@ -42,8 +42,8 @@ class FriendView(Gtk.VBox):
         self._social_container = Gtk.Overlay()
 
         self._accounts = get_all_accounts()
-        logging.debug('SOCIAL_IDS accounts %s' % self._accounts)
-        logging.debug('SOCIAL_IDS paths %s' % _get_webservice_module_paths())
+        logging.debug('accounts %s' % self._accounts)
+        logging.debug('paths %s' % _get_webservice_module_paths())
         # TODO Add multiple account support for social sugar
         # Currently only mock-service account supported
 
@@ -51,10 +51,9 @@ class FriendView(Gtk.VBox):
             if get_account('mock-service'):
                 social_ids = self._buddy.get_social_ids()
                 if social_ids:
-                    friend_public_id = social_ids.get('mock-service', None)
-                    mock_account = self._accounts['mock-service']
-                    post = mock_account.get_latest_post(mock_account_id)
-                    post.get_latest_post(friend_public_id)
+                    mock_account_id = social_ids.get('mock-service', None)
+                    mock_account = get_account('mock-service')
+                    post = mock_account.get_latest_post(str(social_ids))
                     content = post.get_message()
                     icon = post.get_picture()
                 else:
@@ -90,6 +89,8 @@ class FriendView(Gtk.VBox):
                             self.__buddy_notify_current_activity_cb)
         self._buddy.connect('notify::present', self.__buddy_notify_present_cb)
         self._buddy.connect('notify::color', self.__buddy_notify_color_cb)
+        self._buddy.connect('notify::social_ids',
+                            self.__buddy_notify_social_ids_cb)
 
     def _get_new_icon_name(self, ps_activity):
         registry = bundleregistry.get_registry()
@@ -126,7 +127,14 @@ class FriendView(Gtk.VBox):
 
     def __buddy_notify_present_cb(self, buddy, pspec):
         self._update_activity()
+        logging.debug("Calling buddy notify in friends! %s %s" %
+                      self._buddy.get_social_ids(), self._buddy.get_nick())
 
     def __buddy_notify_color_cb(self, buddy, pspec):
         # TODO: shouldn't this change self._buddy_icon instead?
         self._activity_icon.props.xo_color = buddy.props.color
+        logging.debug("Calling buddy notify in friends! %s %s" %
+                      self._buddy.get_social_ids(), self._buddy.get_nick())
+
+    def __buddy_notify_social_ids_cb(self, buddy, pspec):
+        logging.debug('Cmon! %s' % buddy.props.social_ids)

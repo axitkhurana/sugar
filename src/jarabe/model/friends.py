@@ -35,11 +35,11 @@ class FriendBuddyModel(BuddyModel):
 
     _NOT_PRESENT_COLOR = '#D5D5D5,#FFFFFF'
 
-    def __init__(self, nick, key, account=None, contact_id=None, social_ids=None):
+    def __init__(self, nick, key, account=None, contact_id=None):
         self._online_buddy = None
 
         BuddyModel.__init__(self, nick=nick, key=key, account=account,
-                            contact_id=contact_id, social_ids=social_ids)
+                            contact_id=contact_id)
 
         neighborhood_model = neighborhood.get_model()
         neighborhood_model.connect('buddy-added', self.__buddy_added_cb)
@@ -57,7 +57,10 @@ class FriendBuddyModel(BuddyModel):
     def _set_online_buddy(self, buddy):
         self._online_buddy = buddy
         self._online_buddy.connect('notify::color', self.__notify_color_cb)
+        self._online_buddy.connect('notify::social_ids',
+                                   self.__notify_social_ids_cb)
         self.notify('color')
+        self.notify('social_ids')
         self.notify('present')
 
         if buddy.nick != self.nick:
@@ -72,10 +75,14 @@ class FriendBuddyModel(BuddyModel):
             return
         self._online_buddy = None
         self.notify('color')
+        self.notify('social_ids')
         self.notify('present')
 
     def __notify_color_cb(self, buddy, pspec):
         self.notify('color')
+
+    def __notify_social_ids_cb(self, buddy, pspec):
+        self.notify('social_ids')
 
     def is_present(self):
         return self._online_buddy is not None
@@ -89,6 +96,14 @@ class FriendBuddyModel(BuddyModel):
             return XoColor(FriendBuddyModel._NOT_PRESENT_COLOR)
 
     color = GObject.property(type=object, getter=get_color)
+
+    def get_social_ids(self):
+        if self._online_buddy is not None:
+            return self._online_buddy.social_ids
+        else:
+            return {}
+
+    social_ids = GObject.property(type=object, getter=get_social_ids)
 
     def get_handle(self):
         if self._online_buddy is not None:
@@ -126,8 +141,7 @@ class Friends(GObject.GObject):
         if not self.has_buddy(buddy):
             buddy = FriendBuddyModel(key=buddy.key, nick=buddy.nick,
                                      account=buddy.account,
-                                     contact_id=buddy.contact_id,
-                                     social_ids=buddy.social_ids)
+                                     contact_id=buddy.contact_id)
             self.add_friend(buddy)
             self.save()
 
