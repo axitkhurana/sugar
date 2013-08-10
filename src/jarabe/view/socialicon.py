@@ -26,7 +26,7 @@ from jarabe.util.normalize import normalize_string
 _FILTERED_ALPHA = 0.33
 
 
-class SocialIcon(CanvasIcon):
+class SmallCloudIcon(CanvasIcon):
     def __init__(self, buddy, social_container, pixel_size=style.STANDARD_ICON_SIZE):
         CanvasIcon.__init__(self, icon_name='social-bubble',
                             pixel_size=pixel_size)
@@ -76,7 +76,7 @@ class SocialIcon(CanvasIcon):
         self._update_color()
 
 
-class SocialBubble(EventIcon):
+class LargeCloudIcon(EventIcon):
     def __init__(self, buddy, pixel_size=style.SOCIAL_ICON_SIZE):
         EventIcon.__init__(self, icon_name='social-bubble-large',
                            pixel_size=pixel_size)
@@ -119,7 +119,7 @@ class SocialBubble(EventIcon):
         self._update_color()
 
 
-class SocialBubbleContent(Gtk.VBox):
+class CloudContent(Gtk.VBox):
     def __init__(self, text, icon_name):
         Gtk.VBox.__init__(self)
         self.set_homogeneous(False)

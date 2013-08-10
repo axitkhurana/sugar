@@ -22,8 +22,8 @@ from sugar3.graphics import style
 from sugar3.graphics.icon import CanvasIcon
 
 from jarabe.view.buddyicon import BuddyIcon
-from jarabe.view.socialicon import (SocialIcon, SocialBubble,
-                                    SocialBubbleContent)
+from jarabe.view.socialicon import (SmallCloudIcon, LargeCloudIcon,
+                                    CloudContent)
 from jarabe.model import bundleregistry
 from jarabe.webservice.accountsmanager import get_all_accounts, get_account, _get_webservice_module_paths
 
@@ -37,7 +37,7 @@ class FriendView(Gtk.VBox):
 
         self._buddy = buddy
         self._buddy_icon = BuddyIcon(buddy)
-        self._social_bubble = SocialBubble(buddy)
+        self._social_bubble = LargeCloudIcon(buddy)
 
         self._social_container = Gtk.Overlay()
 
@@ -63,15 +63,15 @@ class FriendView(Gtk.VBox):
                     content = 'Webservices have not been configured'
                     icon = 'system-search'
 
-        self._content = SocialBubbleContent(text=content,
-                                            icon_name=icon)
+        self._content = CloudContent(text=content,
+                                     icon_name=icon)
 
         self._social_container.add(self._social_bubble)
         self._social_container.add_overlay(self._content)
         # self._social_container.size_request(style.SOCIAL_ICON_SIZE)
 
-        self._social_icon = SocialIcon(buddy,
-                                       self._social_container)
+        self._social_icon = SmallCloudIcon(buddy,
+                                           self._social_container)
 
         self._buddy_icon.props.pixel_size = size
 
