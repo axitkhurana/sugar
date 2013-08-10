@@ -125,13 +125,13 @@ class SocialBubbleContent(Gtk.VBox):
         self.set_homogeneous(False)
         label = Gtk.Label(text)
         label.set_line_wrap(True)
-        label.set_justify(Gtk.Justification.FILL)
+        label.set_justify(Gtk.Justification.CENTER)
 
         self._text = Gtk.HBox()
-        self._text.pack_start(label, False, False, 30)
+        self._text.pack_start(label, False, False, 20)
         self._icon = Icon(pixel_size=style.SOCIAL_POST_ICON_SIZE,
                           icon_name=icon_name,
-                          stroke_color=style.COLOR_BUTTON_GREY.get_svg(),
-                          fill_color=style.COLOR_TRANSPARENT.get_svg())
+                          stroke_color=style.COLOR_BLACK.get_svg(),
+                          fill_color=style.COLOR_WHITE.get_svg())
         self.pack_start(self._icon, False, True, 60)
         self.pack_end(self._text, False, True, 80)
