@@ -43,6 +43,9 @@ class FriendView(Gtk.VBox):
 
         self.pack_end(self._buddy_icon, False, True, 0)
 
+        if self._buddy.get_social_ids():
+            self._create_social_cloud()
+
         self._buddy_icon.show()
 
         self._activity_icon = CanvasIcon(pixel_size=size)
