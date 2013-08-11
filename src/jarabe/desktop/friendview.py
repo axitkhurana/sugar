@@ -15,7 +15,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-import logging
 from gi.repository import Gtk
 
 from sugar3.graphics import style
@@ -25,7 +24,7 @@ from jarabe.view.buddyicon import BuddyIcon
 from jarabe.view.socialicon import (SmallCloudIcon, LargeCloudIcon,
                                     CloudContent, SocialCloud)
 from jarabe.model import bundleregistry
-from jarabe.webservice.accountsmanager import get_all_accounts, get_account, _get_webservice_module_paths
+from jarabe.webservice.accountsmanager import get_all_accounts, get_account
 
 class FriendView(Gtk.VBox):
     def __init__(self, buddy, **kwargs):
@@ -40,8 +39,6 @@ class FriendView(Gtk.VBox):
 
         self._accounts = get_all_accounts()
 
-        logging.debug('accounts %s' % self._accounts)
-        logging.debug('paths %s' % _get_webservice_module_paths())
         # TODO Add multiple account support for social sugar
         # Currently only mock-service account supported
 
@@ -72,9 +69,6 @@ class FriendView(Gtk.VBox):
                     content = post.get_message()
                     service_icon = post.get_picture()
                 else:
-                    logging.debug('No social id %s %s %s' % (self._buddy.get_nick(),
-                                  self._buddy.get_social_ids(),
-                                  self._buddy.get_color()))
                     content = 'Webservices have not been configured'
                     service_icon = 'system-search'
 
@@ -120,15 +114,10 @@ class FriendView(Gtk.VBox):
 
     def __buddy_notify_present_cb(self, buddy, pspec):
         self._update_activity()
-        logging.debug("Calling buddy notify in friends! %s %s" %
-                      self._buddy.get_social_ids(), self._buddy.get_nick())
 
     def __buddy_notify_color_cb(self, buddy, pspec):
         # TODO: shouldn't this change self._buddy_icon instead?
         self._activity_icon.props.xo_color = buddy.props.color
-        logging.debug("Calling buddy notify in friends! %s %s" %
-                      self._buddy.get_social_ids(), self._buddy.get_nick())
 
     def __buddy_notify_social_ids_cb(self, buddy, pspec):
-        logging.debug('Cmon! %s' % buddy.props.social_ids)
         self._create_social_cloud()

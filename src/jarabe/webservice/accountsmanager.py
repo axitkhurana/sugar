@@ -72,17 +72,14 @@ def _ensure_module_repository():
 
     for path in _get_webservice_module_paths():
         service_name = _get_service_name(path)
-        logging.debug('SERVICE NAME! %s' % service_name)
         if service_name in _module_repository:
             continue
 
         service_module = _load_service_module(path, service_name)
-        logging.debug('SERVICE MODULE! %s' % service_module)
         if service_module is None:
             continue
 
         _module_repository[service_name] = {'service': service_module}
-        logging.debug('MODULE REPOSITORY! %s' % _module_repository)
 
         account_module = None
         module = _load_account_module(path)
@@ -105,7 +102,6 @@ def _ensure_module_repository():
 def get_all_accounts():
     _ensure_module_repository()
 
-    logging.debug('MODULE REPOSITORY! %s' % _module_repository)
     accounts = []
     for service, service_info in _module_repository.iteritems():
         accounts.append(service_info['account'])
@@ -165,12 +161,8 @@ def _load_account_module(path):
 
 def _load_service_module(path, service_name):
     module = None
-    logging.debug('LOAD SERVICE MODULE1 %s' % service_name)
     if os.path.isdir(path):
-        logging.debug('LOAD SERVICE MODULE2 path:%s %s' % (path,
-                      os.listdir(path)))
         if service_name in os.listdir(path):
-            logging.debug('LOAD SERVICE MODULE3 %s' % service_name)
             module = _load_module(os.path.join(path, service_name),
                                   service_name)
 
