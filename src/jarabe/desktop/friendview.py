@@ -23,7 +23,7 @@ from sugar3.graphics.icon import CanvasIcon
 
 from jarabe.view.buddyicon import BuddyIcon
 from jarabe.view.socialicon import (SmallCloudIcon, LargeCloudIcon,
-                                    CloudContent)
+                                    CloudContent, SocialCloud)
 from jarabe.model import bundleregistry
 from jarabe.webservice.accountsmanager import get_all_accounts, get_account, _get_webservice_module_paths
 
@@ -37,49 +37,18 @@ class FriendView(Gtk.VBox):
 
         self._buddy = buddy
         self._buddy_icon = BuddyIcon(buddy)
-        self._social_bubble = LargeCloudIcon(buddy)
-
-        self._social_container = Gtk.Overlay()
 
         self._accounts = get_all_accounts()
+        self._create_social_cloud()
         logging.debug('accounts %s' % self._accounts)
         logging.debug('paths %s' % _get_webservice_module_paths())
         # TODO Add multiple account support for social sugar
         # Currently only mock-service account supported
 
-        if self._accounts:
-            if get_account('mock-service'):
-                social_ids = self._buddy.get_social_ids()
-                if social_ids:
-                    mock_account_id = social_ids.get('mock-service', None)
-                    mock_account = get_account('mock-service')
-                    post = mock_account.get_latest_post(str(social_ids))
-                    content = post.get_message()
-                    icon = post.get_picture()
-                else:
-                    logging.debug('No social id %s %s %s' % (self._buddy.get_nick(),
-                                  self._buddy.get_social_ids(),
-                                  self._buddy.get_color()))
-                    content = 'Webservices have not been configured'
-                    icon = 'system-search'
-
-        self._content = CloudContent(text=content,
-                                     icon_name=icon)
-
-        self._social_container.add(self._social_bubble)
-        self._social_container.add_overlay(self._content)
-        # self._social_container.size_request(style.SOCIAL_ICON_SIZE)
-
-        self._social_icon = SmallCloudIcon(buddy,
-                                           self._social_container)
-
         self._buddy_icon.props.pixel_size = size
 
-        self.add(self._social_container)
-        self.add(self._social_icon)
         self.add(self._buddy_icon)
 
-        self._social_icon.show()
         self._buddy_icon.show()
 
         self._activity_icon = CanvasIcon(pixel_size=size)
@@ -91,6 +60,30 @@ class FriendView(Gtk.VBox):
         self._buddy.connect('notify::color', self.__buddy_notify_color_cb)
         self._buddy.connect('notify::social_ids',
                             self.__buddy_notify_social_ids_cb)
+
+    def _create_social_cloud(self):
+        if self._accounts:
+            if get_account('mock-service'):
+                social_ids = self._buddy.get_social_ids()
+                if social_ids:
+                    mock_account_id = social_ids.get('mock-service', None)
+                    mock_account = get_account('mock-service')
+                    post = mock_account.get_latest_post(str(social_ids))
+                    content = post.get_message()
+                    service_icon = post.get_picture()
+                else:
+                    logging.debug('No social id %s %s %s' % (self._buddy.get_nick(),
+                                  self._buddy.get_social_ids(),
+                                  self._buddy.get_color()))
+                    content = 'Webservices have not been configured'
+                    service_icon = 'system-search'
+
+        self._social_cloud = SocialCloud(self._buddy, content, service_icon)
+        self._small_cloud_icon = SmallCloudIcon(self._buddy,
+                                                self._social_cloud)
+        self.add(self._social_cloud)
+        self.add(self._small_cloud_icon)
+        self._small_cloud_icon.show()
 
     def _get_new_icon_name(self, ps_activity):
         registry = bundleregistry.get_registry()
@@ -138,3 +131,4 @@ class FriendView(Gtk.VBox):
 
     def __buddy_notify_social_ids_cb(self, buddy, pspec):
         logging.debug('Cmon! %s' % buddy.props.social_ids)
+        self._create_social_cloud()

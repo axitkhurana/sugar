@@ -27,11 +27,11 @@ _FILTERED_ALPHA = 0.33
 
 
 class SmallCloudIcon(CanvasIcon):
-    def __init__(self, buddy, social_container, pixel_size=style.STANDARD_ICON_SIZE):
+    def __init__(self, buddy, social_cloud, pixel_size=style.STANDARD_ICON_SIZE):
         CanvasIcon.__init__(self, icon_name='social-bubble',
                             pixel_size=pixel_size)
 
-        self._social_container = social_container
+        self._social_cloud = social_cloud
 
         self._filtered = False
         self._buddy = buddy
@@ -51,7 +51,7 @@ class SmallCloudIcon(CanvasIcon):
         self._update_color()
 
     def __button_release_event_cb(self, icon, event):
-        self._social_container.show_all()
+        self._social_cloud.show_all()
         self.hide()
 
     def _update_color(self):
@@ -120,7 +120,7 @@ class LargeCloudIcon(EventIcon):
 
 
 class CloudContent(Gtk.VBox):
-    def __init__(self, text, icon_name):
+    def __init__(self, text, service_icon):
         Gtk.VBox.__init__(self)
         self.set_homogeneous(False)
         label = Gtk.Label(text)
@@ -130,8 +130,18 @@ class CloudContent(Gtk.VBox):
         self._text = Gtk.HBox()
         self._text.pack_start(label, False, False, 20)
         self._icon = Icon(pixel_size=style.SOCIAL_POST_ICON_SIZE,
-                          icon_name=icon_name,
+                          icon_name=service_icon,
                           stroke_color=style.COLOR_BLACK.get_svg(),
                           fill_color=style.COLOR_WHITE.get_svg())
         self.pack_start(self._icon, False, True, 60)
         self.pack_end(self._text, False, True, 80)
+
+
+class SocialCloud(Gtk.Overlay):
+    def __init__(self, buddy, text, service_icon_name):
+        Gtk.Overlay.__init__(self)
+        self.icon = LargeCloudIcon(buddy)
+        self.content = CloudContent(text, service_icon_name)
+
+        self.add(self.icon)
+        self.add_overlay(self.content)
