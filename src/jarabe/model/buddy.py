@@ -121,7 +121,7 @@ class OwnerBuddyModel(BaseBuddyModel):
 
         self.connect('notify::nick', self.__property_changed_cb)
         self.connect('notify::color', self.__property_changed_cb)
-        self.connect('notify::social_ids', self.__property_changed_cb)
+        self.connect('notify::social-ids', self.__property_changed_cb)
 
         bus = dbus.SessionBus()
         bus.add_signal_receiver(

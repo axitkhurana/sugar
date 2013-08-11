@@ -58,7 +58,7 @@ class FriendView(Gtk.VBox):
                             self.__buddy_notify_current_activity_cb)
         self._buddy.connect('notify::present', self.__buddy_notify_present_cb)
         self._buddy.connect('notify::color', self.__buddy_notify_color_cb)
-        self._buddy.connect('notify::social_ids',
+        self._buddy.connect('notify::social-ids',
                             self.__buddy_notify_social_ids_cb)
 
     def _create_social_cloud(self):

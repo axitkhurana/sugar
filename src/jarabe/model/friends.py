@@ -57,10 +57,10 @@ class FriendBuddyModel(BuddyModel):
     def _set_online_buddy(self, buddy):
         self._online_buddy = buddy
         self._online_buddy.connect('notify::color', self.__notify_color_cb)
-        self._online_buddy.connect('notify::social_ids',
+        self._online_buddy.connect('notify::social-ids',
                                    self.__notify_social_ids_cb)
         self.notify('color')
-        self.notify('social_ids')
+        self.notify('social-ids')
         self.notify('present')
 
         if buddy.nick != self.nick:
@@ -75,14 +75,14 @@ class FriendBuddyModel(BuddyModel):
             return
         self._online_buddy = None
         self.notify('color')
-        self.notify('social_ids')
+        self.notify('social-ids')
         self.notify('present')
 
     def __notify_color_cb(self, buddy, pspec):
         self.notify('color')
 
     def __notify_social_ids_cb(self, buddy, pspec):
-        self.notify('social_ids')
+        self.notify('social-ids')
 
     def is_present(self):
         return self._online_buddy is not None
