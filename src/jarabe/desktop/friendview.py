@@ -39,7 +39,7 @@ class FriendView(Gtk.VBox):
         self._buddy_icon = BuddyIcon(buddy)
 
         self._accounts = get_all_accounts()
-        self._create_social_cloud()
+
         logging.debug('accounts %s' % self._accounts)
         logging.debug('paths %s' % _get_webservice_module_paths())
         # TODO Add multiple account support for social sugar
@@ -47,7 +47,7 @@ class FriendView(Gtk.VBox):
 
         self._buddy_icon.props.pixel_size = size
 
-        self.add(self._buddy_icon)
+        self.pack_end(self._buddy_icon, False, True, 0)
 
         self._buddy_icon.show()
 
@@ -81,8 +81,8 @@ class FriendView(Gtk.VBox):
         self._social_cloud = SocialCloud(self._buddy, content, service_icon)
         self._small_cloud_icon = SmallCloudIcon(self._buddy,
                                                 self._social_cloud)
-        self.add(self._social_cloud)
-        self.add(self._small_cloud_icon)
+        self.pack_start(self._social_cloud, False, True, 0)
+        self.pack_start(self._small_cloud_icon, False, True, 0)
         self._small_cloud_icon.show()
 
     def _get_new_icon_name(self, ps_activity):
