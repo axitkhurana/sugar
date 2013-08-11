@@ -39,9 +39,6 @@ class FriendView(Gtk.VBox):
 
         self._accounts = get_all_accounts()
 
-        # TODO Add multiple account support for social sugar
-        # Currently only mock-service account supported
-
         self._buddy_icon.props.pixel_size = size
 
         self.pack_end(self._buddy_icon, False, True, 0)
@@ -59,25 +56,24 @@ class FriendView(Gtk.VBox):
                             self.__buddy_notify_social_ids_cb)
 
     def _create_social_cloud(self):
-        if self._accounts:
-            if get_account('mock-service'):
-                social_ids = self._buddy.get_social_ids()
-                if social_ids:
-                    mock_account_id = social_ids.get('mock-service', None)
-                    mock_account = get_account('mock-service')
-                    post = mock_account.get_latest_post(str(social_ids))
-                    content = post.get_message()
-                    service_icon = post.get_picture()
-                else:
-                    content = 'Webservices have not been configured'
-                    service_icon = 'system-search'
+        # TODO Add multiple account support for social sugar
 
-        self._social_cloud = SocialCloud(self._buddy, content, service_icon)
-        self._small_cloud_icon = SmallCloudIcon(self._buddy,
-                                                self._social_cloud)
-        self.pack_start(self._social_cloud, False, True, 0)
-        self.pack_start(self._small_cloud_icon, False, True, 0)
-        self._small_cloud_icon.show()
+        if self._accounts:
+            account_name = self._accounts[0].get_description()
+            friend_social_ids = self._buddy.get_social_ids()
+            if friend_social_ids:
+                friend_social_id = friend_social_ids.get(account_name, None)
+                my_account = get_account(account_name)
+                post = my_account.get_latest_post(friend_social_id)
+                content = post.get_message()
+                service_icon = post.get_picture()
+
+                self._social_cloud = SocialCloud(self._buddy, content, service_icon)
+                self._small_cloud_icon = SmallCloudIcon(self._buddy,
+                                                        self._social_cloud)
+                self.pack_start(self._social_cloud, False, True, 0)
+                self.pack_start(self._small_cloud_icon, False, True, 0)
+                self._small_cloud_icon.show()
 
     def _get_new_icon_name(self, ps_activity):
         registry = bundleregistry.get_registry()
