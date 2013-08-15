@@ -15,7 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-from gi.repository import Gtk
+import itertools
+from gi.repository import Gtk, GObject
 
 from sugar3.graphics import style
 from sugar3.graphics.icon import CanvasIcon
@@ -37,14 +38,19 @@ class FriendView(Gtk.VBox):
         self._buddy = buddy
         self._buddy_icon = BuddyIcon(buddy)
 
-        self._accounts = get_all_accounts()
+        self._account_names = [account.get_description() for account in
+                               get_all_accounts()]
+
+        # cycle infinitely
+        self._account_iter = itertools.cycle(self._account_names)
 
         self._buddy_icon.props.pixel_size = size
 
         self.pack_end(self._buddy_icon, False, True, 0)
 
         if self._buddy.get_social_ids():
-            self._create_social_cloud()
+            self._social_cloud_init()
+            self._social_cloud.connect('show', self.__social_cloud_show_cb)
 
         self._buddy_icon.show()
 
@@ -58,25 +64,43 @@ class FriendView(Gtk.VBox):
         self._buddy.connect('notify::social-ids',
                             self.__buddy_notify_social_ids_cb)
 
-    def _create_social_cloud(self):
-        # TODO Add multiple account support for social sugar
 
-        if self._accounts:
-            account_name = self._accounts[0].get_description()
+    def _social_cloud_init(self):
+        if self._account_names:
             friend_social_ids = self._buddy.get_social_ids()
-            if friend_social_ids:
-                friend_social_id = friend_social_ids.get(account_name, None)
-                my_account = get_account(account_name)
-                post = my_account.get_latest_post(friend_social_id)
-                content = post.get_message()
-                service_icon = post.get_picture()
 
-                self._social_cloud = SocialCloud(self._buddy, content, service_icon)
+            account = self._account_names[0]
+            self._account_iter.next() # start from next account
+
+            if account in friend_social_ids:
+                text, icon = self._social_cloud_content(account,
+                                    friend_social_ids[account])
+                self._social_cloud = SocialCloud(self._buddy, text, icon)
                 self._small_cloud_icon = SmallCloudIcon(self._buddy,
                                                         self._social_cloud)
                 self.pack_start(self._social_cloud, False, True, 0)
                 self.pack_start(self._small_cloud_icon, False, True, 0)
                 self._small_cloud_icon.show()
+
+    def _social_cloud_content(self, account_name, friend_social_id):
+        my_account = get_account(account_name)
+        post = my_account.get_latest_post(friend_social_id)
+        content = post.get_message()
+        service_icon = post.get_picture()
+        return content, service_icon
+
+    def _next_social_post(self, social_cloud):
+        if not social_cloud.props.visible:
+            return False
+
+        account_name = self._account_iter.next()
+        friend_social_ids = self._buddy.get_social_ids()
+
+        if account_name in friend_social_ids:
+            text, icon = self._social_cloud_content(account_name,
+                            friend_social_ids[account_name])
+            social_cloud.set_text(text)
+            social_cloud.set_service_icon(service_icon)
 
     def _get_new_icon_name(self, ps_activity):
         registry = bundleregistry.get_registry()
@@ -119,4 +143,8 @@ class FriendView(Gtk.VBox):
         self._activity_icon.props.xo_color = buddy.props.color
 
     def __buddy_notify_social_ids_cb(self, buddy, pspec):
-        self._create_social_cloud()
+        self._social_cloud_init()
+        self._social_cloud.connect('show', self.__social_cloud_show_cb)
+
+    def __social_cloud_show_cb(self, social_cloud, pspec):
+        GObject.timeout_add(5000, self._next_social_post, social_cloud)

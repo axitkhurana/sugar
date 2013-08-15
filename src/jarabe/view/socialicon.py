@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import logging
-from gi.repository import Gtk
+from gi.repository import Gtk, GObject
 
 from sugar3.graphics import style
 from sugar3.graphics.icon import Icon, CanvasIcon, EventIcon
@@ -123,25 +123,60 @@ class CloudContent(Gtk.VBox):
     def __init__(self, text, service_icon):
         Gtk.VBox.__init__(self)
         self.set_homogeneous(False)
-        label = Gtk.Label(text)
-        label.set_line_wrap(True)
-        label.set_justify(Gtk.Justification.CENTER)
+        self._label = Gtk.Label(text)
+        self._label.set_line_wrap(True)
+        self._label.set_justify(Gtk.Justification.CENTER)
 
-        self._text = Gtk.HBox()
-        self._text.pack_start(label, False, False, 20)
+        text_box = Gtk.HBox()
+        text_box.pack_start(self._label, False, False, 20)
         self._icon = Icon(pixel_size=style.SOCIAL_POST_ICON_SIZE,
                           icon_name=service_icon,
                           stroke_color=style.COLOR_BLACK.get_svg(),
                           fill_color=style.COLOR_WHITE.get_svg())
         self.pack_start(self._icon, False, True, 60)
-        self.pack_end(self._text, False, True, 80)
+        self.pack_end(text_box, False, True, 80)
 
+    def set_text(self, text):
+        self._label.set_text(text)
+
+    def get_text(self):
+        return self._label.get_text()
+
+    text = GObject.property(type=object, setter=set_text, getter=get_text)
+
+    def set_icon_name(self, service_icon):
+        self._icon.set_file(service_icon)
+
+    def get_icon_name(self):
+        return self._icon.get_file()
+
+    icon_name = GObject.property(type=object, setter=set_icon_name,
+                                 getter=get_icon_name)
 
 class SocialCloud(Gtk.Overlay):
     def __init__(self, buddy, text, service_icon_name):
         Gtk.Overlay.__init__(self)
-        self.icon = LargeCloudIcon(buddy)
-        self.content = CloudContent(text, service_icon_name)
+        self._icon = LargeCloudIcon(buddy)
+        self._content = CloudContent(text, service_icon_name)
 
-        self.add(self.icon)
-        self.add_overlay(self.content)
+        self.add(self._icon)
+        self.add_overlay(self._content)
+
+    def set_text(self, text):
+        self._content.set_text(text)
+
+    def get_text(self):
+        return self._content.get_text()
+
+    text = GObject.property(type=object, setter=set_text, getter=get_text)
+
+    def set_service_icon(self, service_icon):
+        self._content.set_icon_name(service_icon)
+
+    def get_service_icon(self):
+        return self._content.get_icon_name()
+
+    service_icon = GObject.property(type=object, setter=set_service_icon,
+                                    getter=get_service_icon)
+
+
