@@ -50,7 +50,7 @@ class FriendView(Gtk.VBox):
 
         if self._buddy.get_social_ids():
             self._social_cloud_init()
-            self._social_cloud.connect('show', self.__social_cloud_show_cb)
+            self._social_cloud.content.connect('draw', self.__social_cloud_show_cb)
 
         self._buddy_icon.show()
 
@@ -100,7 +100,7 @@ class FriendView(Gtk.VBox):
             text, icon = self._social_cloud_content(account_name,
                             friend_social_ids[account_name])
             social_cloud.set_text(text)
-            social_cloud.set_service_icon(service_icon)
+            social_cloud.set_icon_name(icon)
 
     def _get_new_icon_name(self, ps_activity):
         registry = bundleregistry.get_registry()
@@ -144,7 +144,7 @@ class FriendView(Gtk.VBox):
 
     def __buddy_notify_social_ids_cb(self, buddy, pspec):
         self._social_cloud_init()
-        self._social_cloud.connect('show', self.__social_cloud_show_cb)
+        self._social_cloud.content.connect('draw', self.__social_cloud_show_cb)
 
     def __social_cloud_show_cb(self, social_cloud, pspec):
         GObject.timeout_add(5000, self._next_social_post, social_cloud)

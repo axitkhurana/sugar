@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-import logging
 from gi.repository import Gtk, GObject
 
 from sugar3.graphics import style
@@ -145,7 +144,7 @@ class CloudContent(Gtk.VBox):
     text = GObject.property(type=object, setter=set_text, getter=get_text)
 
     def set_icon_name(self, service_icon):
-        self._icon.set_file(service_icon)
+        self._icon.props.icon_name = service_icon
 
     def get_icon_name(self):
         return self._icon.get_file()
@@ -156,27 +155,25 @@ class CloudContent(Gtk.VBox):
 class SocialCloud(Gtk.Overlay):
     def __init__(self, buddy, text, service_icon_name):
         Gtk.Overlay.__init__(self)
-        self._icon = LargeCloudIcon(buddy)
-        self._content = CloudContent(text, service_icon_name)
+        self.icon = LargeCloudIcon(buddy)
+        self.content = CloudContent(text, service_icon_name)
 
-        self.add(self._icon)
-        self.add_overlay(self._content)
+        self.add(self.icon)
+        self.add_overlay(self.content)
 
     def set_text(self, text):
-        self._content.set_text(text)
+        self.content.set_text(text)
 
     def get_text(self):
-        return self._content.get_text()
+        return self.content.get_text()
 
     text = GObject.property(type=object, setter=set_text, getter=get_text)
 
     def set_service_icon(self, service_icon):
-        self._content.set_icon_name(service_icon)
+        self.content.set_icon_name(service_icon)
 
     def get_service_icon(self):
-        return self._content.get_icon_name()
+        return self.content.get_icon_name()
 
     service_icon = GObject.property(type=object, setter=set_service_icon,
                                     getter=get_service_icon)
-
-
