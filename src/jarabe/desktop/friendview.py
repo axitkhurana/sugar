@@ -50,8 +50,12 @@ class FriendView(Gtk.VBox):
 
         if self._buddy.get_social_ids():
             self._social_cloud_init()
-            self._social_cloud.content.connect('draw', self.__social_cloud_show_cb)
-
+            self._social_cloud.content.connect('draw', self.__cloud_content_draw_cb)
+            self._social_cloud.content.play_icon.connect_after('button-release-event',
+                    self.__cloud_play_icon_cb)
+            self._social_cloud.content.close_icon.connect_after('button-release-event',
+                    self.__close_icon_botton_press_cb)
+        self._rotate_posts = True
         self._buddy_icon.show()
 
         self._activity_icon = CanvasIcon(pixel_size=size)
@@ -63,7 +67,6 @@ class FriendView(Gtk.VBox):
         self._buddy.connect('notify::color', self.__buddy_notify_color_cb)
         self._buddy.connect('notify::social-ids',
                             self.__buddy_notify_social_ids_cb)
-
 
     def _social_cloud_init(self):
         if self._account_names:
@@ -90,7 +93,9 @@ class FriendView(Gtk.VBox):
         return content, service_icon
 
     def _next_social_post(self, social_cloud):
-        if not social_cloud.props.visible:
+        if (not social_cloud.props.visible or not
+                self._rotate_posts):
+            # cloud visible and state play
             return False
 
         account_name = self._account_iter.next()
@@ -144,7 +149,23 @@ class FriendView(Gtk.VBox):
 
     def __buddy_notify_social_ids_cb(self, buddy, pspec):
         self._social_cloud_init()
-        self._social_cloud.content.connect('draw', self.__social_cloud_show_cb)
+        self._social_cloud.content.connect('draw', self.__cloud_content_draw_cb)
+        self._social_cloud.content.play_icon.connect_after('button-release-event',
+                    self.__cloud_play_icon_cb)
+        self._social_cloud.content.close_icon.connect_after('button-release-event',
+                    self.__close_icon_botton_press_cb)
 
-    def __social_cloud_show_cb(self, social_cloud, pspec):
-        GObject.timeout_add(5000, self._next_social_post, social_cloud)
+    def __cloud_content_draw_cb(self, cloud_content, pspec):
+        GObject.timeout_add(5000, self._next_social_post, cloud_content)
+
+    def __cloud_play_icon_cb(self, play_icon, pspec):
+        self._rotate_posts = not self._rotate_posts
+        if self._rotate_posts:
+            play_icon.props.icon_name = "social-sugar-pause"
+            GObject.timeout_add(5000, self._next_social_post, cloud_content)
+        else:
+            play_icon.props.icon_name = "social-sugar-play"
+
+    def __close_icon_botton_press_cb(self, close_icon, pspec):
+        self._small_cloud_icon.show()
+        self._social_cloud.hide()

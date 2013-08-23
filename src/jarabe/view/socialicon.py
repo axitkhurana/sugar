@@ -132,8 +132,29 @@ class CloudContent(Gtk.VBox):
                           icon_name=service_icon,
                           stroke_color=style.COLOR_BLACK.get_svg(),
                           fill_color=style.COLOR_WHITE.get_svg())
-        self.pack_start(self._icon, False, True, 60)
-        self.pack_end(text_box, False, True, 80)
+        self.close_icon = EventIcon(pixel_size=style.SMALL_ICON_SIZE,
+                                icon_name="entry-stop",
+                                stroke_color=style.COLOR_BLACK.get_svg())
+        # play or pause icon
+        self.play_icon = EventIcon(pixel_size=style.SMALL_ICON_SIZE,
+                               icon_name="social-sugar-pause",
+                               stroke_color=style.COLOR_BLACK.get_svg())
+
+        buttons = Gtk.HBox()
+        buttons.pack_start(self.play_icon, False, False, 10)
+        buttons.pack_start(self.close_icon, False, False, 10)
+        self.pack_start(self._padded(self._icon, 1, 90, 0), False, True, 0)
+        self.pack_start(text_box, False, True, 15)
+        self.pack_end(self._padded(buttons, 0, 0, 95), False, True, 0)
+
+    def _padded(self, child, yalign, top, bottom):
+        padder = Gtk.Alignment.new(xalign=0.5, yalign=yalign,
+                                   xscale=0, yscale=0)
+        padder.set_padding(style.zoom(top),
+                           style.zoom(bottom),
+                           0, 0)
+        padder.add(child)
+        return padder
 
     def set_text(self, text):
         self._label.set_text(text)
