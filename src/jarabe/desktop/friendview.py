@@ -61,6 +61,8 @@ class FriendView(Gtk.VBox):
         self._activity_icon = CanvasIcon(pixel_size=size)
         self._update_activity()
 
+        fv = self.size_request()
+        self.set_size_request(style.SOCIAL_ICON_SIZE, fv.height + style.SOCIAL_ICON_SIZE)
         self._buddy.connect('notify::current-activity',
                             self.__buddy_notify_current_activity_cb)
         self._buddy.connect('notify::present', self.__buddy_notify_present_cb)
@@ -81,8 +83,9 @@ class FriendView(Gtk.VBox):
                 self._social_cloud = SocialCloud(self._buddy, text, icon)
                 self._small_cloud_icon = SmallCloudIcon(self._buddy,
                                                         self._social_cloud)
-                self.pack_start(self._social_cloud, False, True, 0)
-                self.pack_start(self._small_cloud_icon, False, True, 0)
+
+                self.pack_end(self._small_cloud_icon, False, True, 0)
+                self.pack_end(self._social_cloud, False, True, 0)
                 self._small_cloud_icon.show()
 
     def _social_cloud_content(self, account_name, friend_social_id):
